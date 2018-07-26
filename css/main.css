@@ -1,0 +1,14 @@
+custom-player
+{
+    position: relative;
+}
+
+custom-player figure ul
+{
+    position: absolute;
+    display: flex;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
