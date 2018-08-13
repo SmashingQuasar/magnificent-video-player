@@ -3,10 +3,12 @@
 interface UserConfiguration
 {
     container: HTMLElement;
-    videoPlayer: HTMLVideoElement|undefined;
-    playButton: HTMLButtonElement|undefined;
-    pauseButton: HTMLButtonElement|undefined;
-    timeline: HTMLProgressElement|undefined;
+    videoPlayer: HTMLVideoElement | undefined;
+    playButton: HTMLButtonElement | undefined;
+    pauseButton: HTMLButtonElement | undefined;
+    timeline: HTMLProgressElement | undefined;
+    displayTime: boolean | undefined;
+    timeContainer: HTMLElement | undefined;
 }
 
 interface SmashingConfiguration // Will be used in the future.
@@ -17,6 +19,28 @@ interface SmashingConfiguration // Will be used in the future.
     timeline: HTMLProgressElement;
 }
 
+function prettyfyTime(time: number): string
+{
+    let seconds: number;
+    let minutes: number;
+    let hours: number;
+
+    hours = Math.floor(time / 3600);
+
+    time -= hours * 3600;
+
+    minutes = Math.floor(time / 60);
+
+    time -= minutes * 60;
+
+    seconds = Math.floor(time);
+
+    const PRETTY_MINUTES = `${minutes}`.padStart(2, "0");
+    const PRETTY_SECONDS = `${seconds}`.padStart(2, "0");
+
+    return `${hours}:${PRETTY_MINUTES}:${PRETTY_SECONDS}`;
+}
+
 class MagnificientVideoPlayer
 {
     private container: HTMLElement;
@@ -24,6 +48,8 @@ class MagnificientVideoPlayer
     private playButton: HTMLButtonElement;
     private pauseButton: HTMLButtonElement;
     private timeline: HTMLProgressElement;
+    private displayTime: boolean;
+    private timeContainer: HTMLElement | undefined = undefined;
 
     constructor(configuration: UserConfiguration)
     {
@@ -103,6 +129,9 @@ class MagnificientVideoPlayer
                         .then(
                             () =>
                             {
+
+                                this.container.classList.add("playing"); // For CSS purpose.
+
                                 if (this.playButton === this.pauseButton) // Handling the case where the button is a switch.
                                 {
                                     this.playButton.classList.remove("play");
@@ -180,7 +209,8 @@ class MagnificientVideoPlayer
                 if (!this.videoPlayer.paused) // Should only triggers if the player isn't active.
                 {
                     this.videoPlayer.pause(); // This method does not return anything usable.
-                    
+                    this.container.classList.remove("playing"); // For CSS purpose.
+
                     if (this.pauseButton === this.playButton)
                     {
                         this.pauseButton.classList.remove("pause");
@@ -233,14 +263,73 @@ class MagnificientVideoPlayer
         }
 
         this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
+        this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
+
+        // Handling time display.
+
+        if (configuration.displayTime === undefined || configuration.displayTime === false)
+        {
+            this.displayTime = false;
+        }
+        else
+        {
+            this.displayTime = true;
+
+            if (configuration.timeContainer === undefined)
+            {
+                const TIME_CONTAINER: HTMLElement | null = document.querySelector(`span[data-mvp="time"]`);
+
+                if (TIME_CONTAINER === null)
+                {
+                    throw new ReferenceError("MVP: No timeContainer property provided in configuration and couldn't find it in DOM.")
+                }
+
+                this.timeContainer = TIME_CONTAINER;
+            }
+            else
+            {
+                if (configuration.timeContainer instanceof HTMLElement)
+                {
+                    this.timeContainer = configuration.timeContainer;
+                }
+                else
+                {
+                    throw new TypeError("MVP: timeContainer property MUST be an instance of HTMLElement.");
+                }
+            }
+            this.updateTime();
+        }
+
+        this.timeline.addEventListener(
+            "click",
+            (event): void =>
+            {
+                const TIMELINE_RECT: ClientRect | DOMRect = this.timeline.getBoundingClientRect();
+                const LEFT: number = TIMELINE_RECT.left;
+                const WIDTH: number = TIMELINE_RECT.width;
+                const PROGRESS: number = (100 / WIDTH) * (event.clientX - LEFT) / 100;
+
+                const TIME: number = this.videoPlayer.duration * PROGRESS;
+                
+                this.updateTime(TIME);
+
+            }
+        );
+
+        // Handling timeupdate videoPlayer event.
 
         this.videoPlayer.addEventListener(
             "timeupdate",
             () =>
             {
                 this.timeline.value = this.videoPlayer.currentTime;
+                this.updateTime();
             }
         );
+
+        // Handling sound controls.
+
+        
 
     }
 
@@ -258,6 +347,53 @@ class MagnificientVideoPlayer
     public getPausebutton(): HTMLButtonElement
     {
         return this.playButton;
+    }
+
+    /**
+     * getCurrentTime
+     */
+    public getCurrentTime(): number
+    {
+        return this.videoPlayer.currentTime;
+    }
+
+    /**
+     * getDuration
+     */
+    public getDuration(): number
+    {
+        return this.videoPlayer.duration;    
+    }
+
+    /**
+     * getPrettyCurrentTime
+     */
+    public getPrettyCurrentTime(): string
+    {
+        return prettyfyTime(this.videoPlayer.currentTime);
+    }
+
+    /**
+     * getPrettyDuration
+     */
+    public getPrettyDuration(): string
+    {
+        return prettyfyTime(this.videoPlayer.duration);    
+    }
+
+    /**
+     * updateTime
+     */
+    public updateTime(time: number | undefined = undefined): void
+    {
+        if (time !== undefined)
+        {
+            this.videoPlayer.currentTime = time;
+        }
+        if (this.displayTime && this.timeContainer !== undefined)
+        {
+            this.timeContainer.innerHTML = `${this.getPrettyCurrentTime()} / ${this.getPrettyDuration()}`;
+        }
     }
 
 }

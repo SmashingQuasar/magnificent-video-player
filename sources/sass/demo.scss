@@ -41,4 +41,26 @@ main
     {
         background-image: url("../../demo/images/svg/pause.svg");
     }
+    span[data-mvp="time"]
+    {
+        display: flex;
+        height: 100%;
+        color: white;
+        font-weight: bold;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+[data-mvp*="container"]:not(.playing)::after
+{
+    content: " ";
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    background-image: url("../../demo/images/svg/rich_play.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 10%;
 }

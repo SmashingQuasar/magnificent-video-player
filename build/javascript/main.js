@@ -1,7 +1,21 @@
 "use strict";
+function prettyfyTime(time) {
+    var seconds;
+    var minutes;
+    var hours;
+    hours = Math.floor(time / 3600);
+    time -= hours * 3600;
+    minutes = Math.floor(time / 60);
+    time -= minutes * 60;
+    seconds = Math.floor(time);
+    var PRETTY_MINUTES = ("" + minutes).padStart(2, "0");
+    var PRETTY_SECONDS = ("" + seconds).padStart(2, "0");
+    return hours + ":" + PRETTY_MINUTES + ":" + PRETTY_SECONDS;
+}
 var MagnificientVideoPlayer = (function () {
     function MagnificientVideoPlayer(configuration) {
         var _this = this;
+        this.timeContainer = undefined;
         if (configuration.container === undefined) {
             throw new SyntaxError("MVP: Invalid configuration object: No container property.");
         }
@@ -43,6 +57,7 @@ var MagnificientVideoPlayer = (function () {
             if (_this.videoPlayer.paused) {
                 _this.videoPlayer.play()
                     .then(function () {
+                    _this.container.classList.add("playing");
                     if (_this.playButton === _this.pauseButton) {
                         _this.playButton.classList.remove("play");
                         _this.pauseButton.classList.add("pause");
@@ -84,6 +99,7 @@ var MagnificientVideoPlayer = (function () {
         this.pauseButton.addEventListener("click", function (event) {
             if (!_this.videoPlayer.paused) {
                 _this.videoPlayer.pause();
+                _this.container.classList.remove("playing");
                 if (_this.pauseButton === _this.playButton) {
                     _this.pauseButton.classList.remove("pause");
                     _this.playButton.classList.add("play");
@@ -118,8 +134,40 @@ var MagnificientVideoPlayer = (function () {
             }
         }
         this.timeline.max = this.videoPlayer.duration;
+        this.timeline.value = this.videoPlayer.currentTime;
+        if (configuration.displayTime === undefined || configuration.displayTime === false) {
+            this.displayTime = false;
+        }
+        else {
+            this.displayTime = true;
+            if (configuration.timeContainer === undefined) {
+                var TIME_CONTAINER = document.querySelector("span[data-mvp=\"time\"]");
+                if (TIME_CONTAINER === null) {
+                    throw new ReferenceError("MVP: No timeContainer property provided in configuration and couldn't find it in DOM.");
+                }
+                this.timeContainer = TIME_CONTAINER;
+            }
+            else {
+                if (configuration.timeContainer instanceof HTMLElement) {
+                    this.timeContainer = configuration.timeContainer;
+                }
+                else {
+                    throw new TypeError("MVP: timeContainer property MUST be an instance of HTMLElement.");
+                }
+            }
+            this.updateTime();
+        }
+        this.timeline.addEventListener("click", function (event) {
+            var TIMELINE_RECT = _this.timeline.getBoundingClientRect();
+            var LEFT = TIMELINE_RECT.left;
+            var WIDTH = TIMELINE_RECT.width;
+            var PROGRESS = (100 / WIDTH) * (event.clientX - LEFT) / 100;
+            var TIME = _this.videoPlayer.duration * PROGRESS;
+            _this.updateTime(TIME);
+        });
         this.videoPlayer.addEventListener("timeupdate", function () {
             _this.timeline.value = _this.videoPlayer.currentTime;
+            _this.updateTime();
         });
     }
     MagnificientVideoPlayer.prototype.getPlayButton = function () {
@@ -127,6 +175,27 @@ var MagnificientVideoPlayer = (function () {
     };
     MagnificientVideoPlayer.prototype.getPausebutton = function () {
         return this.playButton;
+    };
+    MagnificientVideoPlayer.prototype.getCurrentTime = function () {
+        return this.videoPlayer.currentTime;
+    };
+    MagnificientVideoPlayer.prototype.getDuration = function () {
+        return this.videoPlayer.duration;
+    };
+    MagnificientVideoPlayer.prototype.getPrettyCurrentTime = function () {
+        return prettyfyTime(this.videoPlayer.currentTime);
+    };
+    MagnificientVideoPlayer.prototype.getPrettyDuration = function () {
+        return prettyfyTime(this.videoPlayer.duration);
+    };
+    MagnificientVideoPlayer.prototype.updateTime = function (time) {
+        if (time === void 0) { time = undefined; }
+        if (time !== undefined) {
+            this.videoPlayer.currentTime = time;
+        }
+        if (this.displayTime && this.timeContainer !== undefined) {
+            this.timeContainer.innerHTML = this.getPrettyCurrentTime() + " / " + this.getPrettyDuration();
+        }
     };
     return MagnificientVideoPlayer;
 }());

@@ -17,7 +17,9 @@ window.addEventListener(
                 videoPlayer: undefined,
                 playButton: undefined,
                 pauseButton: undefined,
-                timeline: undefined
+                timeline: undefined,
+                displayTime: true,
+                timeContainer: undefined
             }  
         );
     }

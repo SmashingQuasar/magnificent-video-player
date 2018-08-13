@@ -3,7 +3,7 @@
         "outDir": "./build/javascript",
         "allowJs": true,
         "target": "es5",
-        "lib": ["dom", "es2015"],
+        "lib": ["dom", "es2015", "es2017"],
         "alwaysStrict": true,
         "removeComments": true,
         "strict": true,

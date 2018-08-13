@@ -43,4 +43,32 @@ main {
 [data-mvp*="container"] button.pause {
   background-image: url("../../demo/images/svg/pause.svg");
 }
+
+[data-mvp*="container"] span[data-mvp="time"] {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  color: white;
+  font-weight: bold;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+[data-mvp*="container"]:not(.playing)::after {
+  content: " ";
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: calc(100% - 50px);
+  background-image: url("../../demo/images/svg/rich_play.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10%;
+}
 /*# sourceMappingURL=demo.css.map */
