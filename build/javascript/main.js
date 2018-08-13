@@ -95,6 +95,32 @@ var MagnificientVideoPlayer = (function () {
                 event.stopImmediatePropagation();
             }
         });
+        if (configuration.timeline === undefined) {
+            var TIMELINE = this.container.querySelector("progress[data-mvp=\"timeline\"]");
+            if (TIMELINE === null) {
+                throw new ReferenceError("MVP: No timeline HTMLProgressElement provided in configuration and unable to find it in DOM.");
+            }
+            else {
+                if (TIMELINE instanceof HTMLProgressElement) {
+                    this.timeline = TIMELINE;
+                }
+                else {
+                    throw new TypeError("MVP: timeline property MUST be an instance of HTMLProgressElement.");
+                }
+            }
+        }
+        else {
+            if (configuration.timeline instanceof HTMLProgressElement) {
+                this.timeline = configuration.timeline;
+            }
+            else {
+                throw new TypeError("MVP: timeline property MUST be an instance of HTMLProgressElement.");
+            }
+        }
+        this.timeline.max = this.videoPlayer.duration;
+        this.videoPlayer.addEventListener("timeupdate", function () {
+            _this.timeline.value = _this.videoPlayer.currentTime;
+        });
     }
     MagnificientVideoPlayer.prototype.getPlayButton = function () {
         return this.playButton;

@@ -23,6 +23,7 @@ class MagnificientVideoPlayer
     private videoPlayer: HTMLVideoElement;
     private playButton: HTMLButtonElement;
     private pauseButton: HTMLButtonElement;
+    private timeline: HTMLProgressElement;
 
     constructor(configuration: UserConfiguration)
     {
@@ -94,7 +95,7 @@ class MagnificientVideoPlayer
 
         this.playButton.addEventListener(
             "click",
-            (event) =>
+            (event): void =>
             {
                 if (this.videoPlayer.paused) // Should only triggers if the player isn't active.
                 {
@@ -174,7 +175,7 @@ class MagnificientVideoPlayer
 
         this.pauseButton.addEventListener(
             "click",
-            (event) =>
+            (event): void =>
             {
                 if (!this.videoPlayer.paused) // Should only triggers if the player isn't active.
                 {
@@ -194,6 +195,50 @@ class MagnificientVideoPlayer
                     event.stopImmediatePropagation();
                 }
 
+            }
+        );
+
+        // Handling timeline
+
+        if (configuration.timeline === undefined) // Default case where no progress element is provided in configuration.
+        {
+            const TIMELINE: HTMLElement | null = this.container.querySelector(`progress[data-mvp="timeline"]`);
+
+            if (TIMELINE === null)
+            {
+                throw new ReferenceError("MVP: No timeline HTMLProgressElement provided in configuration and unable to find it in DOM.")
+            }
+            else
+            {
+                if (TIMELINE instanceof HTMLProgressElement)
+                {
+                    this.timeline = TIMELINE;
+                }
+                else
+                {
+                    throw new TypeError("MVP: timeline property MUST be an instance of HTMLProgressElement."); // Case impossible to reach.
+                }
+            }
+        }
+        else
+        {
+            if (configuration.timeline instanceof HTMLProgressElement)
+            {
+                this.timeline = configuration.timeline;
+            }
+            else
+            {
+                throw new TypeError("MVP: timeline property MUST be an instance of HTMLProgressElement.");
+            }
+        }
+
+        this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
+
+        this.videoPlayer.addEventListener(
+            "timeupdate",
+            () =>
+            {
+                this.timeline.value = this.videoPlayer.currentTime;
             }
         );
 
