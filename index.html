@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" href="submodules/reset-css/reset.css" />
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/demo.css">
-    <script src="javascript/build/main.js" defer></script>
-    <script src="javascript/build/demo.js" defer></script>
+    <link rel="stylesheet" href="build/css/main.min.css">
+    <link rel="stylesheet" href="build/css/demo.min.css">
+    <script src="build/javascript/main.js" defer></script>
+    <script src="build/javascript/demo.js" defer></script>
     <title>Custom player</title>
 </head>
 <body>
@@ -16,13 +16,13 @@
     <main>
         <figure data-mvp="container">
             <video width="1280" height="720">
-                <source src="videos/big_buck_bunny.mp4" type="video/mp4">
+                <source src="demo/videos/big_buck_bunny.mp4" type="video/mp4">
             </video>
             <figcaption>
 
             </figcaption>
             <ul>
-                <li><button data-mvp"play|pause"></button></li>
+                <li><button data-mvp="play|pause"></button></li>
                 <li>
                     <progress></progress>
                 </li>

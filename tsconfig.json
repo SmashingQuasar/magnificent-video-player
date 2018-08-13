@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "./javascript/build",
+        "outDir": "./build/javascript",
         "allowJs": true,
         "target": "es5",
         "lib": ["dom", "es2015"],
@@ -21,6 +21,6 @@
         "newLine": "LF",
     },
     "include": [
-        "./javascript/sources"
+        "./sources/typescript"
     ]
 }

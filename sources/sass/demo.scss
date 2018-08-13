@@ -1,0 +1,44 @@
+main
+{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+[data-mvp*="container"]
+{
+
+    ul
+    {
+        background-color: rgba(0, 0, 0, 0.65);
+        border: 1px dashed blue;
+        height: 50px;
+        display: flex;
+
+        li
+        {
+            display: flex;
+        }
+    }
+    button.play,
+    button.pause
+    {
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 45%;
+        height: 100%;
+        width:50px;
+    }
+
+    button.play
+    {
+        background-image: url("../../demo/images/svg/play.svg");
+    }
+
+    button.pause
+    {
+        background-image: url("../../demo/images/svg/pause.svg");
+    }
+}
