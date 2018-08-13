@@ -11,6 +11,9 @@ window.addEventListener("load", function () {
         pauseButton: undefined,
         timeline: undefined,
         displayTime: true,
-        timeContainer: undefined
+        timeContainer: undefined,
+        displaySoundControls: true,
+        muteButton: undefined,
+        soundProgress: undefined
     });
 });

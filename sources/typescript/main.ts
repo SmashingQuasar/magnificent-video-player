@@ -9,6 +9,9 @@ interface UserConfiguration
     timeline: HTMLProgressElement | undefined;
     displayTime: boolean | undefined;
     timeContainer: HTMLElement | undefined;
+    displaySoundControls: boolean | undefined;
+    muteButton: HTMLButtonElement | undefined;
+    soundProgress: HTMLProgressElement | undefined;
 }
 
 interface SmashingConfiguration // Will be used in the future.
@@ -50,6 +53,9 @@ class MagnificientVideoPlayer
     private timeline: HTMLProgressElement;
     private displayTime: boolean;
     private timeContainer: HTMLElement | undefined = undefined;
+    private displaySoundControls: boolean;
+    private muteButton: HTMLButtonElement | undefined;
+    // private soundProgress: HTMLProgressElement | undefined;
 
     constructor(configuration: UserConfiguration)
     {
@@ -329,7 +335,74 @@ class MagnificientVideoPlayer
 
         // Handling sound controls.
 
-        
+        if (configuration.displaySoundControls === undefined)
+        {
+            this.displaySoundControls = false;
+        }
+        else
+        {
+            this.displaySoundControls = true;
+
+            if (configuration.muteButton === undefined)
+            {
+                const MUTE_BUTTON: HTMLElement | null = this.container.querySelector(`button[data-mvp="mute"]`);
+
+                if (MUTE_BUTTON === null)
+                {
+                    throw new ReferenceError("MVP: No muteButton property provided in configuration and unable to find it in DOM.");
+                }
+                else
+                {
+                    if (MUTE_BUTTON instanceof HTMLButtonElement)
+                    {
+                        this.muteButton = MUTE_BUTTON;
+                    }
+                    else
+                    {
+                        throw new TypeError("MVP: muteButton property MUST be an instance of HTMLButtonElement.");                        
+                    }
+                }
+            }
+            else
+            {
+                if (configuration.muteButton instanceof HTMLButtonElement)
+                {
+                    this.muteButton = configuration.muteButton;
+                }
+                else
+                {
+                    throw new TypeError("MVP: muteButton property MUST be an instance of HTMLButtonElement.");
+                }
+            }
+
+            // Handling accessibility.
+
+            if (!this.muteButton.hasAttribute("role"))
+            {
+                this.muteButton.setAttribute("role", "switch");
+            }
+
+            // Handling class.
+
+            this.muteButton.classList.add("mute");
+
+            this.muteButton.addEventListener(
+                "click",
+                () =>
+                {
+                    if (this.videoPlayer.muted)
+                    {
+                        this.videoPlayer.muted = false;
+                        this.container.classList.remove("muted");
+                    }
+                    else
+                    {
+                        this.videoPlayer.muted = true;
+                        this.container.classList.add("muted");
+                    }
+                }  
+            );
+        }
 
     }
 
@@ -394,6 +467,13 @@ class MagnificientVideoPlayer
         {
             this.timeContainer.innerHTML = `${this.getPrettyCurrentTime()} / ${this.getPrettyDuration()}`;
         }
+    }
+
+    /**
+     * getDisplaySoundControls
+     */
+    public getDisplaySoundControls() {
+        return this.displaySoundControls;
     }
 
 }

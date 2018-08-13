@@ -169,6 +169,48 @@ var MagnificientVideoPlayer = (function () {
             _this.timeline.value = _this.videoPlayer.currentTime;
             _this.updateTime();
         });
+        if (configuration.displaySoundControls === undefined) {
+            this.displaySoundControls = false;
+        }
+        else {
+            this.displaySoundControls = true;
+            if (configuration.muteButton === undefined) {
+                var MUTE_BUTTON = this.container.querySelector("button[data-mvp=\"mute\"]");
+                if (MUTE_BUTTON === null) {
+                    throw new ReferenceError("MVP: No muteButton property provided in configuration and unable to find it in DOM.");
+                }
+                else {
+                    if (MUTE_BUTTON instanceof HTMLButtonElement) {
+                        this.muteButton = MUTE_BUTTON;
+                    }
+                    else {
+                        throw new TypeError("MVP: muteButton property MUST be an instance of HTMLButtonElement.");
+                    }
+                }
+            }
+            else {
+                if (configuration.muteButton instanceof HTMLButtonElement) {
+                    this.muteButton = configuration.muteButton;
+                }
+                else {
+                    throw new TypeError("MVP: muteButton property MUST be an instance of HTMLButtonElement.");
+                }
+            }
+            if (!this.muteButton.hasAttribute("role")) {
+                this.muteButton.setAttribute("role", "switch");
+            }
+            this.muteButton.classList.add("mute");
+            this.muteButton.addEventListener("click", function () {
+                if (_this.videoPlayer.muted) {
+                    _this.videoPlayer.muted = false;
+                    _this.container.classList.remove("muted");
+                }
+                else {
+                    _this.videoPlayer.muted = true;
+                    _this.container.classList.add("muted");
+                }
+            });
+        }
     }
     MagnificientVideoPlayer.prototype.getPlayButton = function () {
         return this.playButton;
@@ -196,6 +238,9 @@ var MagnificientVideoPlayer = (function () {
         if (this.displayTime && this.timeContainer !== undefined) {
             this.timeContainer.innerHTML = this.getPrettyCurrentTime() + " / " + this.getPrettyDuration();
         }
+    };
+    MagnificientVideoPlayer.prototype.getDisplaySoundControls = function () {
+        return this.displaySoundControls;
     };
     return MagnificientVideoPlayer;
 }());

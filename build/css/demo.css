@@ -60,6 +60,15 @@ main {
           justify-content: center;
 }
 
+[data-mvp*="container"] button.mute {
+  width: 50px;
+  height: 100%;
+}
+
+[data-mvp*="container"]:not(.muted) button[data-mvp="mute"] {
+  opacity: 0.25;
+}
+
 [data-mvp*="container"]:not(.playing)::after {
   content: " ";
   position: absolute;
