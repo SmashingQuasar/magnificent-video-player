@@ -22,7 +22,7 @@ window.addEventListener(
                 timeContainer: undefined,
                 displaySoundControls: true,
                 muteButton: undefined,
-                soundProgress: undefined
+                volume: undefined
             }  
         );
     }

@@ -11,7 +11,7 @@ interface UserConfiguration
     timeContainer: HTMLElement | undefined;
     displaySoundControls: boolean | undefined;
     muteButton: HTMLButtonElement | undefined;
-    soundProgress: HTMLProgressElement | undefined;
+    volume: HTMLProgressElement | undefined;
 }
 
 interface SmashingConfiguration // Will be used in the future.
@@ -55,7 +55,7 @@ class MagnificientVideoPlayer
     private timeContainer: HTMLElement | undefined = undefined;
     private displaySoundControls: boolean;
     private muteButton: HTMLButtonElement | undefined;
-    // private soundProgress: HTMLProgressElement | undefined;
+    private volume: HTMLProgressElement | undefined;
 
     constructor(configuration: UserConfiguration)
     {
@@ -123,47 +123,6 @@ class MagnificientVideoPlayer
             this.playButton.classList.add("play");
         }
 
-        // Play triggering event listener.
-
-        this.playButton.addEventListener(
-            "click",
-            (event): void =>
-            {
-                if (this.videoPlayer.paused) // Should only triggers if the player isn't active.
-                {
-                    this.videoPlayer.play() // This returns a promise.
-                        .then(
-                            () =>
-                            {
-
-                                this.container.classList.add("playing"); // For CSS purpose.
-
-                                if (this.playButton === this.pauseButton) // Handling the case where the button is a switch.
-                                {
-                                    this.playButton.classList.remove("play");
-                                    this.pauseButton.classList.add("pause");
-                                }
-                                else
-                                {
-                                    this.playButton.hidden = true;
-                                    this.pauseButton.hidden = false;
-                                }
-                            }
-                        )
-                        .catch(
-                            (error) =>
-                            {
-                                console.debug(error); // Something went wrong with the default HTML video player.
-                            }
-                        );
-                    
-                    event.stopImmediatePropagation();
-                }
-
-
-            }
-        );
-
         // Handling pause button.
 
         if (configuration.pauseButton === undefined) // Default plugin setup, no specific button is provided.
@@ -206,31 +165,43 @@ class MagnificientVideoPlayer
             this.pauseButton.setAttribute("role", "switch");
         }
         
+        if (this.playButton === this.pauseButton)
+        {
+
+        }
+
         // Play triggering event listener.
+
+        this.playButton.addEventListener(
+            "click",
+            (event): void =>
+            {
+                if (this.videoPlayer.paused)
+                {
+                    this.play();
+                    event.stopImmediatePropagation();
+                }
+            }
+        );
+
+        // Pause triggering event listener.
 
         this.pauseButton.addEventListener(
             "click",
             (event): void =>
             {
-                if (!this.videoPlayer.paused) // Should only triggers if the player isn't active.
+                if (!this.videoPlayer.paused)
                 {
-                    this.videoPlayer.pause(); // This method does not return anything usable.
-                    this.container.classList.remove("playing"); // For CSS purpose.
-
-                    if (this.pauseButton === this.playButton)
-                    {
-                        this.pauseButton.classList.remove("pause");
-                        this.playButton.classList.add("play");
-                    }
-                    else
-                    {
-                        this.pauseButton.hidden = true;
-                        this.playButton.hidden = false;
-                    }
-
+                    this.pause();
                     event.stopImmediatePropagation();
                 }
-
+            }
+        );
+        this.videoPlayer.addEventListener(
+            "click",
+            () =>
+            {
+                this.togglePlay();
             }
         );
 
@@ -306,19 +277,51 @@ class MagnificientVideoPlayer
             this.updateTime();
         }
 
+        let time_changing = false;
+
         this.timeline.addEventListener(
-            "click",
+            "mousedown",
+            (): void =>
+            {
+                time_changing = true;
+            }
+        );
+
+        this.timeline.addEventListener(
+            "mousemove",
             (event): void =>
             {
-                const TIMELINE_RECT: ClientRect | DOMRect = this.timeline.getBoundingClientRect();
-                const LEFT: number = TIMELINE_RECT.left;
-                const WIDTH: number = TIMELINE_RECT.width;
-                const PROGRESS: number = (100 / WIDTH) * (event.clientX - LEFT) / 100;
+                if (time_changing)
+                {
+                    const TIME: number = this.calculateTimelineProgress(event.clientX);
+                    this.updateTime(TIME);
+                }
+            }
+        );
 
-                const TIME: number = this.videoPlayer.duration * PROGRESS;
-                
-                this.updateTime(TIME);
+        this.timeline.addEventListener(
+            "mouseup",
+            (event): void =>
+            {
+                if (time_changing)
+                {
+                    const TIME: number = this.calculateTimelineProgress(event.clientX);
+                    this.updateTime(TIME);
+                    time_changing = false;
+                }
+            }
+        );
 
+        this.timeline.addEventListener(
+            "mouseleave",
+            (event): void =>
+            {
+                if (time_changing)
+                {
+                    const TIME: number = this.calculateTimelineProgress(event.clientX);
+                    this.updateTime(TIME);
+                    time_changing = false;
+                }
             }
         );
 
@@ -338,10 +341,13 @@ class MagnificientVideoPlayer
         if (configuration.displaySoundControls === undefined)
         {
             this.displaySoundControls = false;
+            this.volume = undefined;
         }
         else
         {
             this.displaySoundControls = true;
+
+            // Handling mute button.
 
             if (configuration.muteButton === undefined)
             {
@@ -375,6 +381,101 @@ class MagnificientVideoPlayer
                 }
             }
 
+            // Handling volume.
+
+            if (configuration.volume === undefined)
+            {
+                const VOLUME: HTMLProgressElement | null = this.container.querySelector(`progress[data-mvp="volume"]`);
+
+                if (VOLUME === null)
+                {
+                    throw new ReferenceError("MVP: No volume property provided in configuration and unable to find it in DOM.");
+                }
+                else
+                {
+                    if (VOLUME instanceof HTMLProgressElement)
+                    {
+                        this.volume = VOLUME;
+                    }
+                    else
+                    {
+                        throw new TypeError("MVP: volume property MUST be an instance of HTMLButtonElement.");                        
+                    }
+                }
+            }
+            else
+            {
+                if (configuration.volume instanceof HTMLButtonElement)
+                {
+                    this.volume = configuration.volume;
+                }
+                else
+                {
+                    throw new TypeError("MVP: volume property MUST be an instance of HTMLButtonElement.");
+                }
+            }
+
+            this.volume.max = 1;
+            this.volume.value = 0.5;
+
+            // Handling volume event listeners. TO REFACTOR.
+
+            let volume_changing = false;
+
+            this.volume.addEventListener(
+                "mousedown",
+                () =>
+                {
+                    if (this.displaySoundControls && this.volume !== undefined)
+                    {
+                        volume_changing = true;
+                    }
+                }
+            );
+
+            this.volume.addEventListener(
+                "mousemove",
+                (event) =>
+                {
+                    if (this.displaySoundControls && this.volume !== undefined && volume_changing)
+                    {
+                        const VOLUME: number = this.calculateVolume(event.clientX);
+                    
+                        this.setVolume(VOLUME);
+                    }
+                }
+            );
+
+            this.volume.addEventListener(
+                "mouseup",
+                (event) =>
+                {
+                    if (this.displaySoundControls && this.volume !== undefined && volume_changing)
+                    {
+                        const VOLUME: number = this.calculateVolume(event.clientX);
+                    
+                        this.setVolume(VOLUME);
+
+                        volume_changing = false;
+                    }
+                }
+            );
+
+            this.volume.addEventListener(
+                "mouseleave",
+                (event) =>
+                {
+                    if (this.displaySoundControls && this.volume !== undefined && volume_changing)
+                    {
+                        const VOLUME: number = this.calculateVolume(event.clientX);
+                    
+                        this.setVolume(VOLUME);
+
+                        volume_changing = false;
+                    }
+                }
+            );
+
             // Handling accessibility.
 
             if (!this.muteButton.hasAttribute("role"))
@@ -382,7 +483,7 @@ class MagnificientVideoPlayer
                 this.muteButton.setAttribute("role", "switch");
             }
 
-            // Handling class.
+            // Handling mute button class.
 
             this.muteButton.classList.add("mute");
 
@@ -402,6 +503,10 @@ class MagnificientVideoPlayer
                     }
                 }  
             );
+
+
+
+
         }
 
     }
@@ -454,6 +559,17 @@ class MagnificientVideoPlayer
         return prettyfyTime(this.videoPlayer.duration);    
     }
 
+    private calculateTimelineProgress(clientX: number): number
+    {
+        const TIMELINE_RECT: ClientRect | DOMRect = this.timeline.getBoundingClientRect();
+        const LEFT: number = TIMELINE_RECT.left;
+        const WIDTH: number = TIMELINE_RECT.width;
+        const PROGRESS: number = (100 / WIDTH) * (clientX - LEFT) / 100;
+        const TIME: number = this.videoPlayer.duration * PROGRESS;
+
+        return TIME;
+    }
+
     /**
      * updateTime
      */
@@ -472,39 +588,129 @@ class MagnificientVideoPlayer
     /**
      * getDisplaySoundControls
      */
-    public getDisplaySoundControls() {
+    public getDisplaySoundControls(): boolean
+    {
         return this.displaySoundControls;
     }
 
-}
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => 
+    private calculateVolume(clientX: number): number
     {
-        
-        const button: HTMLButtonElement|null = document.querySelector(`[data-custom-player*=play]`);
-
-        console.log(button);
-
-        if (button)
+    
+        if (this.displaySoundControls && this.volume !== undefined)
         {
-            button.addEventListener(
-                "click",
-                () => 
-                {
-                    if (button.classList.contains("play"))
-                    {
-                        button.classList.remove("play");
-                        button.classList.add("pause");
-                    }
-                    else
-                    {
-                        button.classList.add("play");
-                        button.classList.remove("pause");
-                    }
-                }
-            );
+            const VOLUME_RECT: ClientRect | DOMRect = this.volume.getBoundingClientRect();
+            const LEFT: number = VOLUME_RECT.left;
+            const WIDTH: number = VOLUME_RECT.width;
+            const VOLUME: number = (100 / WIDTH) * (clientX - LEFT) / 100;
+    
+            return VOLUME;
+        }
+        else
+        {
+            return 0;
         }
     }
-)
+
+    /**
+     * setVolume
+     */
+    public setVolume(volume: number): void
+    {
+        if (this.displaySoundControls && this.volume !== undefined)
+        {
+
+            if (volume > 1)
+            {
+                volume = volume / 100;
+            }
+            if (volume < 0)
+            {
+                volume = 0;
+            }
+
+            console.debug(volume);
+
+            this.volume.value = volume;
+            this.videoPlayer.volume = volume;
+        }
+    }
+
+    /**
+     * pause
+     */
+    public pause(): boolean
+    {
+        if (!this.videoPlayer.paused) // Should only triggers if the player isn't active.
+        {
+            this.videoPlayer.pause(); // This method does not return anything usable.
+            this.container.classList.remove("playing"); // For CSS purpose.
+
+            if (this.pauseButton === this.playButton)
+            {
+                this.pauseButton.classList.remove("pause");
+                this.playButton.classList.add("play");
+            }
+            else
+            {
+                this.pauseButton.hidden = true;
+                this.playButton.hidden = false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * play
+     */
+    public play(): boolean
+    {
+        if (this.videoPlayer.paused) // Should only triggers if the player isn't active.
+        {
+            this.videoPlayer.play() // This returns a promise.
+                .then(
+                    () =>
+                    {
+
+                        this.container.classList.add("playing"); // For CSS purpose.
+
+                        if (this.playButton === this.pauseButton) // Handling the case where the button is a switch.
+                        {
+                            this.playButton.classList.remove("play");
+                            this.pauseButton.classList.add("pause");
+                        }
+                        else
+                        {
+                            this.playButton.hidden = true;
+                            this.pauseButton.hidden = false;
+                        }
+
+                        return true;
+                    }
+                )
+                .catch(
+                    (error) =>
+                    {
+                        console.debug(error); // Something went wrong with the default HTML video player.
+                    }
+                );
+        }
+        return false;
+    }
+
+    /**
+     * togglePlay
+     */
+    public togglePlay(): void
+    {
+        if (this.videoPlayer.paused)
+        {
+            this.play();
+        }
+        else
+        {
+            this.pause();
+        }
+    }
+
+}

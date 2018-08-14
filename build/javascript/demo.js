@@ -14,6 +14,6 @@ window.addEventListener("load", function () {
         timeContainer: undefined,
         displaySoundControls: true,
         muteButton: undefined,
-        soundProgress: undefined
+        volume: undefined
     });
 });

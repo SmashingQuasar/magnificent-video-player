@@ -10,6 +10,11 @@ main {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+[data-mvp*="container"] video {
+  cursor: pointer;
 }
 
 [data-mvp*="container"] ul {
@@ -25,6 +30,9 @@ main {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 [data-mvp*="container"] button.play,
@@ -42,6 +50,16 @@ main {
 
 [data-mvp*="container"] button.pause {
   background-image: url("../../demo/images/svg/pause.svg");
+}
+
+[data-mvp*="container"] progress {
+  height: 15px;
+  background-color: white;
+  margin: 5px;
+}
+
+[data-mvp*="container"] progress[data-mvp="timeline"] {
+  width: 500px;
 }
 
 [data-mvp*="container"] span[data-mvp="time"] {
@@ -63,21 +81,13 @@ main {
 [data-mvp*="container"] button.mute {
   width: 50px;
   height: 100%;
-}
-
-[data-mvp*="container"]:not(.muted) button[data-mvp="mute"] {
-  opacity: 0.25;
-}
-
-[data-mvp*="container"]:not(.playing)::after {
-  content: " ";
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: calc(100% - 50px);
-  background-image: url("../../demo/images/svg/rich_play.svg");
-  background-repeat: no-repeat;
+  background-image: url("../../demo/images/svg/sound.svg");
   background-position: center;
-  background-size: 10%;
+  background-repeat: no-repeat;
+  background-size: 25px;
+}
+
+[data-mvp*="container"].muted button.mute {
+  background-image: url("../../demo/images/svg/mute.svg");
 }
 /*# sourceMappingURL=demo.css.map */
