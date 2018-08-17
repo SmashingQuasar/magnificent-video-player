@@ -142,7 +142,12 @@ var MagnificientVideoPlayer = (function () {
                     throw new TypeError("MVP: timeContainer property MUST be an instance of HTMLElement.");
                 }
             }
-            this.updateTime();
+            window.setInterval(function (t) {
+                if (_this.videoPlayer.readyState > 0) {
+                    _this.updateTime();
+                    clearInterval(t);
+                }
+            });
         }
         var time_changing = false;
         this.timeline.addEventListener("mousedown", function () {

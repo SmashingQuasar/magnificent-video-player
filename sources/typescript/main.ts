@@ -244,16 +244,13 @@ class MagnificientVideoPlayer
             {
                 if (this.videoPlayer.readyState > 0)
                 {
-                    this.timeline.max = this.videoPlayer.duration;
+                    this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
                     this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
                     clearInterval(t);
                 }
             },
             500
         );
-
-        // this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
-        // this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
 
         // Handling time display.
 
@@ -287,7 +284,17 @@ class MagnificientVideoPlayer
                     throw new TypeError("MVP: timeContainer property MUST be an instance of HTMLElement.");
                 }
             }
-            this.updateTime();
+            
+            window.setInterval(
+                (t: number) =>
+                {
+                    if (this.videoPlayer.readyState > 0)
+                    {
+                        this.updateTime();
+                        clearInterval(t);
+                    }
+                }
+            );
         }
 
         let time_changing = false;
