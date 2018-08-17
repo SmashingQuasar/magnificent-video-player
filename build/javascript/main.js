@@ -115,8 +115,13 @@ var MagnificientVideoPlayer = (function () {
                 throw new TypeError("MVP: timeline property MUST be an instance of HTMLProgressElement.");
             }
         }
-        this.timeline.max = this.videoPlayer.duration;
-        this.timeline.value = this.videoPlayer.currentTime;
+        window.setInterval(function (t) {
+            if (_this.videoPlayer.readyState > 0) {
+                _this.timeline.max = _this.videoPlayer.duration;
+                _this.timeline.value = _this.videoPlayer.currentTime;
+                clearInterval(t);
+            }
+        }, 500);
         if (configuration.displayTime === undefined || configuration.displayTime === false) {
             this.displayTime = false;
         }

@@ -239,8 +239,21 @@ class MagnificientVideoPlayer
             }
         }
 
-        this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
-        this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
+        window.setInterval(
+            (t) =>
+            {
+                if (this.videoPlayer.readyState > 0)
+                {
+                    this.timeline.max = this.videoPlayer.duration;
+                    this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
+                    clearInterval(t);
+                }
+            },
+            500
+        );
+
+        // this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
+        // this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
 
         // Handling time display.
 
