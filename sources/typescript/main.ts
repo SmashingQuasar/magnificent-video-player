@@ -353,12 +353,10 @@ class MagnificientVideoPlayer
             {
                 this.timeline.value = this.videoPlayer.currentTime;
 
-
                 const PROGRESS: number = 100 / this.videoPlayer.duration * this.videoPlayer.currentTime / 100;
 
                 const EVENT: Event = new CustomEvent("MVPProgressUpdate", {detail: PROGRESS});
                 this.videoPlayer.dispatchEvent(EVENT);
-        
 
                 this.updateTime();
             }
@@ -668,8 +666,9 @@ class MagnificientVideoPlayer
                 volume = 0;
             }
 
-            console.debug(volume);
-
+            const EVENT: CustomEvent = new CustomEvent("MVPVolumeUpdate", { detail: volume });
+            this.videoPlayer.dispatchEvent(EVENT);
+            
             this.volume.value = volume;
             this.videoPlayer.volume = volume;
         }

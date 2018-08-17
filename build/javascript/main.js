@@ -337,7 +337,8 @@ var MagnificientVideoPlayer = (function () {
             if (volume < 0) {
                 volume = 0;
             }
-            console.debug(volume);
+            var EVENT = new CustomEvent("MVPVolumeUpdate", { detail: volume });
+            this.videoPlayer.dispatchEvent(EVENT);
             this.volume.value = volume;
             this.videoPlayer.volume = volume;
         }
