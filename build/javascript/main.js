@@ -300,8 +300,6 @@ var MagnificientVideoPlayer = (function () {
         var LEFT = TIMELINE_RECT.left;
         var WIDTH = TIMELINE_RECT.width;
         var PROGRESS = (100 / WIDTH) * (clientX - LEFT) / 100;
-        var EVENT = new CustomEvent("MVPProgressUpdate", { detail: PROGRESS });
-        this.videoPlayer.dispatchEvent(EVENT);
         var TIME = this.videoPlayer.duration * PROGRESS;
         return TIME;
     };

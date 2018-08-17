@@ -600,9 +600,6 @@ class MagnificientVideoPlayer
         const WIDTH: number = TIMELINE_RECT.width;
         const PROGRESS: number = (100 / WIDTH) * (clientX - LEFT) / 100;
 
-        const EVENT: Event = new CustomEvent("MVPProgressUpdate", {detail: PROGRESS});
-        this.videoPlayer.dispatchEvent(EVENT);
-
         const TIME: number = this.videoPlayer.duration * PROGRESS;
 
         return TIME;

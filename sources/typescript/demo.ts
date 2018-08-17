@@ -27,5 +27,9 @@ window.addEventListener(
             }  
         );
 
+        mvp.getVideoPlayer().addEventListener("MVPProgressUpdate", (event) => { console.log(event);});
+
+        mvp.getVideoPlayer().addEventListener("MVPVolumeUpdate", (event) => { console.log(event);});
+
     }
 );

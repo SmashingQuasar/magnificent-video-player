@@ -17,4 +17,6 @@ window.addEventListener("load", function () {
         muteButton: undefined,
         volume: undefined
     });
+    mvp.getVideoPlayer().addEventListener("MVPProgressUpdate", function (event) { console.log(event); });
+    mvp.getVideoPlayer().addEventListener("MVPVolumeUpdate", function (event) { console.log(event); });
 });
