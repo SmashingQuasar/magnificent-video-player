@@ -175,6 +175,9 @@ var MagnificientVideoPlayer = (function () {
         });
         this.videoPlayer.addEventListener("timeupdate", function () {
             _this.timeline.value = _this.videoPlayer.currentTime;
+            var PROGRESS = 100 / _this.videoPlayer.duration * _this.videoPlayer.currentTime / 100;
+            var EVENT = new CustomEvent("MVPProgressUpdate", { detail: PROGRESS });
+            _this.videoPlayer.dispatchEvent(EVENT);
             _this.updateTime();
         });
         if (configuration.displaySoundControls === undefined) {
@@ -271,6 +274,9 @@ var MagnificientVideoPlayer = (function () {
             });
         }
     }
+    MagnificientVideoPlayer.prototype.getVideoPlayer = function () {
+        return this.videoPlayer;
+    };
     MagnificientVideoPlayer.prototype.getPlayButton = function () {
         return this.playButton;
     };
@@ -294,6 +300,8 @@ var MagnificientVideoPlayer = (function () {
         var LEFT = TIMELINE_RECT.left;
         var WIDTH = TIMELINE_RECT.width;
         var PROGRESS = (100 / WIDTH) * (clientX - LEFT) / 100;
+        var EVENT = new CustomEvent("MVPProgressUpdate", { detail: PROGRESS });
+        this.videoPlayer.dispatchEvent(EVENT);
         var TIME = this.videoPlayer.duration * PROGRESS;
         return TIME;
     };

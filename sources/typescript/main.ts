@@ -352,6 +352,14 @@ class MagnificientVideoPlayer
             () =>
             {
                 this.timeline.value = this.videoPlayer.currentTime;
+
+
+                const PROGRESS: number = 100 / this.videoPlayer.duration * this.videoPlayer.currentTime / 100;
+
+                const EVENT: Event = new CustomEvent("MVPProgressUpdate", {detail: PROGRESS});
+                this.videoPlayer.dispatchEvent(EVENT);
+        
+
                 this.updateTime();
             }
         );
@@ -532,6 +540,14 @@ class MagnificientVideoPlayer
     }
 
     /**
+     * getVideoPlayer
+     */
+    public getVideoPlayer(): HTMLVideoElement
+    {
+        return this.videoPlayer;
+    }
+
+    /**
      * getPlayButton
      */
     public getPlayButton(): HTMLButtonElement
@@ -585,6 +601,10 @@ class MagnificientVideoPlayer
         const LEFT: number = TIMELINE_RECT.left;
         const WIDTH: number = TIMELINE_RECT.width;
         const PROGRESS: number = (100 / WIDTH) * (clientX - LEFT) / 100;
+
+        const EVENT: Event = new CustomEvent("MVPProgressUpdate", {detail: PROGRESS});
+        this.videoPlayer.dispatchEvent(EVENT);
+
         const TIME: number = this.videoPlayer.duration * PROGRESS;
 
         return TIME;

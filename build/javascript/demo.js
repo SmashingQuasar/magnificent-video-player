@@ -1,10 +1,11 @@
 "use strict";
+var mvp = null;
 window.addEventListener("load", function () {
     var CONTAINER = document.querySelector("figure[data-mvp=\"container\"]");
     if (CONTAINER === null) {
         throw new ReferenceError("MVP Demo: Impossible to find container.");
     }
-    new MagnificientVideoPlayer({
+    mvp = new MagnificientVideoPlayer({
         container: CONTAINER,
         videoPlayer: undefined,
         playButton: undefined,
