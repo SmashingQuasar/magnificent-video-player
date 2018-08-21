@@ -264,7 +264,7 @@ class MagnificientVideoPlayer
 
             if (configuration.timeContainer === undefined)
             {
-                const TIME_CONTAINER: HTMLElement | null = document.querySelector(`span[data-mvp="time"]`);
+                const TIME_CONTAINER: HTMLElement | null = this.container.querySelector(`span[data-mvp="time"]`);
 
                 if (TIME_CONTAINER === null)
                 {
