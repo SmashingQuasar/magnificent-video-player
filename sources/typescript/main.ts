@@ -239,8 +239,18 @@ class MagnificientVideoPlayer
             }
         }
 
-        this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
-        this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
+        window.setInterval(
+            (t) =>
+            {
+                if (this.videoPlayer.readyState > 0)
+                {
+                    this.timeline.max = this.videoPlayer.duration; // Setting the max value of the timeline to the duration of the video makes it easier to handle later.
+                    this.timeline.value = this.videoPlayer.currentTime; // Setting the value to the currentTime of the videoPlayer. Will most likely always set it to 0.
+                    clearInterval(t);
+                }
+            },
+            500
+        );
 
         // Handling time display.
 
@@ -274,7 +284,17 @@ class MagnificientVideoPlayer
                     throw new TypeError("MVP: timeContainer property MUST be an instance of HTMLElement.");
                 }
             }
-            this.updateTime();
+            
+            window.setInterval(
+                (t: number) =>
+                {
+                    if (this.videoPlayer.readyState > 0)
+                    {
+                        this.updateTime();
+                        clearInterval(t);
+                    }
+                }
+            );
         }
 
         let time_changing = false;
@@ -332,6 +352,12 @@ class MagnificientVideoPlayer
             () =>
             {
                 this.timeline.value = this.videoPlayer.currentTime;
+
+                const PROGRESS: number = 100 / this.videoPlayer.duration * this.videoPlayer.currentTime / 100;
+
+                const EVENT: Event = new CustomEvent("MVPProgressUpdate", {detail: PROGRESS});
+                this.videoPlayer.dispatchEvent(EVENT);
+
                 this.updateTime();
             }
         );
@@ -512,6 +538,14 @@ class MagnificientVideoPlayer
     }
 
     /**
+     * getVideoPlayer
+     */
+    public getVideoPlayer(): HTMLVideoElement
+    {
+        return this.videoPlayer;
+    }
+
+    /**
      * getPlayButton
      */
     public getPlayButton(): HTMLButtonElement
@@ -565,6 +599,7 @@ class MagnificientVideoPlayer
         const LEFT: number = TIMELINE_RECT.left;
         const WIDTH: number = TIMELINE_RECT.width;
         const PROGRESS: number = (100 / WIDTH) * (clientX - LEFT) / 100;
+
         const TIME: number = this.videoPlayer.duration * PROGRESS;
 
         return TIME;
@@ -628,8 +663,9 @@ class MagnificientVideoPlayer
                 volume = 0;
             }
 
-            console.debug(volume);
-
+            const EVENT: CustomEvent = new CustomEvent("MVPVolumeUpdate", { detail: volume });
+            this.videoPlayer.dispatchEvent(EVENT);
+            
             this.volume.value = volume;
             this.videoPlayer.volume = volume;
         }

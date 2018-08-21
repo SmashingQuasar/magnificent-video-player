@@ -115,8 +115,13 @@ var MagnificientVideoPlayer = (function () {
                 throw new TypeError("MVP: timeline property MUST be an instance of HTMLProgressElement.");
             }
         }
-        this.timeline.max = this.videoPlayer.duration;
-        this.timeline.value = this.videoPlayer.currentTime;
+        window.setInterval(function (t) {
+            if (_this.videoPlayer.readyState > 0) {
+                _this.timeline.max = _this.videoPlayer.duration;
+                _this.timeline.value = _this.videoPlayer.currentTime;
+                clearInterval(t);
+            }
+        }, 500);
         if (configuration.displayTime === undefined || configuration.displayTime === false) {
             this.displayTime = false;
         }
@@ -137,7 +142,12 @@ var MagnificientVideoPlayer = (function () {
                     throw new TypeError("MVP: timeContainer property MUST be an instance of HTMLElement.");
                 }
             }
-            this.updateTime();
+            window.setInterval(function (t) {
+                if (_this.videoPlayer.readyState > 0) {
+                    _this.updateTime();
+                    clearInterval(t);
+                }
+            });
         }
         var time_changing = false;
         this.timeline.addEventListener("mousedown", function () {
@@ -165,6 +175,9 @@ var MagnificientVideoPlayer = (function () {
         });
         this.videoPlayer.addEventListener("timeupdate", function () {
             _this.timeline.value = _this.videoPlayer.currentTime;
+            var PROGRESS = 100 / _this.videoPlayer.duration * _this.videoPlayer.currentTime / 100;
+            var EVENT = new CustomEvent("MVPProgressUpdate", { detail: PROGRESS });
+            _this.videoPlayer.dispatchEvent(EVENT);
             _this.updateTime();
         });
         if (configuration.displaySoundControls === undefined) {
@@ -261,6 +274,9 @@ var MagnificientVideoPlayer = (function () {
             });
         }
     }
+    MagnificientVideoPlayer.prototype.getVideoPlayer = function () {
+        return this.videoPlayer;
+    };
     MagnificientVideoPlayer.prototype.getPlayButton = function () {
         return this.playButton;
     };
@@ -319,7 +335,8 @@ var MagnificientVideoPlayer = (function () {
             if (volume < 0) {
                 volume = 0;
             }
-            console.debug(volume);
+            var EVENT = new CustomEvent("MVPVolumeUpdate", { detail: volume });
+            this.videoPlayer.dispatchEvent(EVENT);
             this.volume.value = volume;
             this.videoPlayer.volume = volume;
         }

@@ -1,4 +1,5 @@
 "use strict";
+let mvp = null;
 
 window.addEventListener(
     "load",
@@ -11,7 +12,7 @@ window.addEventListener(
             throw new ReferenceError("MVP Demo: Impossible to find container.");
         }
         
-        new MagnificientVideoPlayer(
+        mvp = new MagnificientVideoPlayer(
             {
                 container: CONTAINER,
                 videoPlayer: undefined,
@@ -25,5 +26,10 @@ window.addEventListener(
                 volume: undefined
             }  
         );
+
+        mvp.getVideoPlayer().addEventListener("MVPProgressUpdate", (event) => { console.log(event);});
+
+        mvp.getVideoPlayer().addEventListener("MVPVolumeUpdate", (event) => { console.log(event);});
+
     }
 );

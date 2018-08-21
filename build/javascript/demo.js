@@ -1,10 +1,11 @@
 "use strict";
+var mvp = null;
 window.addEventListener("load", function () {
     var CONTAINER = document.querySelector("figure[data-mvp=\"container\"]");
     if (CONTAINER === null) {
         throw new ReferenceError("MVP Demo: Impossible to find container.");
     }
-    new MagnificientVideoPlayer({
+    mvp = new MagnificientVideoPlayer({
         container: CONTAINER,
         videoPlayer: undefined,
         playButton: undefined,
@@ -16,4 +17,6 @@ window.addEventListener("load", function () {
         muteButton: undefined,
         volume: undefined
     });
+    mvp.getVideoPlayer().addEventListener("MVPProgressUpdate", function (event) { console.log(event); });
+    mvp.getVideoPlayer().addEventListener("MVPVolumeUpdate", function (event) { console.log(event); });
 });
