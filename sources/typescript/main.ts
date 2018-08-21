@@ -703,33 +703,24 @@ class MagnificientVideoPlayer
     {
         if (this.videoPlayer.paused) // Should only triggers if the player isn't active.
         {
-            this.videoPlayer.play() // This returns a promise.
-                .then(
-                    () =>
-                    {
 
-                        this.container.classList.add("playing"); // For CSS purpose.
+            this.videoPlayer.play(); // This returns a promise.
 
-                        if (this.playButton === this.pauseButton) // Handling the case where the button is a switch.
-                        {
-                            this.playButton.classList.remove("play");
-                            this.pauseButton.classList.add("pause");
-                        }
-                        else
-                        {
-                            this.playButton.hidden = true;
-                            this.pauseButton.hidden = false;
-                        }
+            this.container.classList.add("playing"); // For CSS purpose.
 
-                        return true;
-                    }
-                )
-                .catch(
-                    (error) =>
-                    {
-                        console.debug(error); // Something went wrong with the default HTML video player.
-                    }
-                );
+            if (this.playButton === this.pauseButton) // Handling the case where the button is a switch.
+            {
+                this.playButton.classList.remove("play");
+                this.pauseButton.classList.add("pause");
+            }
+            else
+            {
+                this.playButton.hidden = true;
+                this.pauseButton.hidden = false;
+            }
+
+            return true;
+
         }
         return false;
     }
