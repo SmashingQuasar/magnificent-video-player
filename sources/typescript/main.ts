@@ -703,7 +703,6 @@ class MagnificientVideoPlayer
     {
         if (this.videoPlayer.paused) // Should only triggers if the player isn't active.
         {
-
             this.videoPlayer.play(); // This returns a promise.
 
             this.container.classList.add("playing"); // For CSS purpose.
