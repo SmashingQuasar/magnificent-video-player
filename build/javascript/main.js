@@ -123,7 +123,7 @@ var MagnificientVideoPlayer = (function () {
         else {
             this.displayTime = true;
             if (configuration.timeContainer === undefined) {
-                var TIME_CONTAINER = document.querySelector("span[data-mvp=\"time\"]");
+                var TIME_CONTAINER = this.container.querySelector("span[data-mvp=\"time\"]");
                 if (TIME_CONTAINER === null) {
                     throw new ReferenceError("MVP: No timeContainer property provided in configuration and couldn't find it in DOM.");
                 }
